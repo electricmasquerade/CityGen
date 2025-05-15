@@ -46,7 +46,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(imgui-sfml)
 
 
-add_executable(CityGen main.cpp)
+add_executable(CityGen src/main.cpp
+        src/City/RoadGraph.cpp
+        src/City/RoadGraph.h
+        src/City/LSystemGenerator.cpp
+        src/City/LSystemGenerator.h
+        src/Render/RenderLayer.cpp
+        src/Render/RenderLayer.h)
 
 
 target_link_libraries(CityGen PRIVATE
