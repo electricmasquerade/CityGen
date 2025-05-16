@@ -22,6 +22,7 @@ namespace City {
         int addVertex(float x, float y);
 
         int addEdge(int startVertexId, int endVertexId);
+        void reset();
 
         //getters
         [[nodiscard]] const std::vector<Vertex> &getVertices() const { return m_vertices; }

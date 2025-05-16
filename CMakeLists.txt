@@ -52,7 +52,10 @@ add_executable(CityGen src/main.cpp
         src/City/LSystemGenerator.cpp
         src/City/LSystemGenerator.h
         src/Render/RenderLayer.cpp
-        src/Render/RenderLayer.h)
+        src/Render/RenderLayer.h
+        src/City/CitySymbols.h
+        src/City/TurtleBuilder.cpp
+        src/City/TurtleBuilder.h)
 
 
 target_link_libraries(CityGen PRIVATE

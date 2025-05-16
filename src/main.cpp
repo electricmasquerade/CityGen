@@ -7,6 +7,9 @@
 #include <iostream>
 
 #include "City/RoadGraph.h"
+#include "City/LSystemGenerator.h"
+#include "City/TurtleBuilder.h"
+#include "Render/RenderLayer.h"
 
 int main() {
     // Create the main window
@@ -16,6 +19,18 @@ int main() {
     window.setFramerateLimit(120);
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
+
+    // Create a render layer for the city
+    City::RoadGraph roadGraph;
+    RenderLayer renderLayer(window);
+    City::LSystemGenerator lSystem;
+    lSystem.setAxiom("F");
+    //lSystem.addRule({"F", "F[+F]F[-F]F", 1.0f});
+    lSystem.addRule({"F", "F[+F][-F][++F][--F]F", 0.3f});  // More branching
+    lSystem.addRule({"F", "FF[+F][-F]F", 0.3f});  // Longer segments
+    lSystem.addRule({"F", "F[+F]F[-F]F", 0.4f});  // Original rule
+    lSystem.setDepth(4);
+
 
     while (window.isOpen()) {
         // Process events, including window close
@@ -40,7 +55,9 @@ int main() {
         sf::View cityView = window.getDefaultView();
         cityView.setViewport(sf::FloatRect{{0.2f, 0.0f}, {0.8f, 1.0f}});
         window.setView(cityView);
+        // Put render code here
 
+        renderLayer.renderRoads();
 
         //split controls back to the left of screen
         window.setView(window.getDefaultView());
@@ -50,22 +67,28 @@ int main() {
         ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("Controls");
         if (ImGui::Button("Test")) {
-            auto city = City::RoadGraph();
-            int v1 = city.addVertex(0, 0);
-            int v2 = city.addVertex(1, 1);
-            city.addEdge(v1, v2);
-            assert(city.getVertices().size() == 2);
-            assert(city.getEdges().size() == 1);
-            assert(city.getVertices()[0].edges.size() == 1);
-            assert(city.getVertices()[1].edges.size() == 1);
-            std::cout << city.getVertices()[0].edges.size() << std::endl;
+            //test lsystem
+            roadGraph.reset();
 
+            lSystem.generate();
+            std::cout << "Generated L-System: " << lSystem.getGeneratedString() << std::endl;
+            //create a road graph
+            City::TurtleBuilder turtle(lSystem, roadGraph);
+            turtle.createGraph();
+            //print the graph
+            std::cout << "Generated Road Graph:" << std::endl;
+            for (const auto &vertex: roadGraph.getVertices()) {
+                std::cout << "Vertex ID: " << vertex.id << ", Position: (" << vertex.x << ", " << vertex.y << ")" << std::endl;
+            }
+            renderLayer.buildRoadMesh(roadGraph);
+            renderLayer.renderRoads();
         }
+        ImVec2 settingsPos = ImGui::GetWindowSize();
 
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(0, settingsPos.y), ImGuiCond_Always);
         ImGui::SetNextWindowSize({window.getSize().x * 0.2f, windowHeight * 0.1}, ImGuiCond_Always);
         ImGui::SetNextWindowBgAlpha(0.5f);
         //ImGui::SetNextWindowSize(ImVec2(200, 100));

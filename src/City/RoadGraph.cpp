@@ -13,3 +13,10 @@ int City::RoadGraph::addEdge(const int startVertexId, const int endVertexId) {
     m_vertices[endVertexId].edges.push_back(id);
     return id;
 }
+
+void City::RoadGraph::reset() {
+    m_vertices.clear();
+    m_edges.clear();
+    m_nextVertexId = 0;
+    m_nextEdgeId = 0;
+}
